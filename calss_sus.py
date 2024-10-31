@@ -1,7 +1,7 @@
 #apartado de creacion de la ventana
 import tkinter as tk
 from tkinter import messagebox, ttk
-from link import link
+from api import link
 
 class sus:
     def __init__(self, root):
