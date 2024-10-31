@@ -1,3 +1,4 @@
+#apartado de creacion de la ventana
 import tkinter as tk
 from tkinter import messagebox, ttk
 from link import link
@@ -34,6 +35,9 @@ class sus:
         self.__boton_todos = tk.Button(self.__root, text="Mostrar Todos", command=self.__mostrar_datos)
         self.__boton_todos.pack_forget()
 
+        self.__boton_refrescar = tk.Button(self.__root, text="Refrescar Datos", command=self.__mostrar_datos)
+        self.__boton_refrescar.pack(pady=5)
+
     def __mostrar_datos(self):
         for item in self.__tabla.get_children():
             self.__tabla.delete(item)
@@ -42,37 +46,49 @@ class sus:
             self.__tabla.insert("", tk.END, values=(registro['no_serie'], registro['piloto'], registro['en_servicio'], registro['modelo'], registro['horas_de_vuelo']))
 
         self.__boton_todos.pack_forget()
+        self.__boton_refrescar.pack(pady=5)
 
     def __buscar_por_id(self):
         id_buscar = self.__entrada_id.get()
         if not id_buscar:
             messagebox.showwarning("Advertencia", "Por favor ingresa un No de Serie.")
             return
+
         for item in self.__tabla.get_children():
             self.__tabla.delete(item)
+
         datos = self.__LINK.obtener_datos()
         encontrado = False
         for registro in datos:
             if registro['no_serie'] == id_buscar:
                 self.__tabla.insert("", tk.END, values=(registro['no_serie'], registro['piloto'], registro['en_servicio'], registro['modelo'], registro['horas_de_vuelo']))
                 encontrado = True
-                break
 
-        if encontrado:
-            self.__boton_todos.pack(pady=5)
-        else:
+        if not encontrado:
             messagebox.showinfo("Resultado", "Registro no encontrado.")
+        else:
+            self.__boton_todos.pack(pady=5)
+            self.__boton_refrescar.pack_forget()
 
     def __mostrar_seleccionado(self, event=None):
         selecion_item = self.__tabla.selection()
         if selecion_item:
             item = self.__tabla.item(selecion_item)
             datos = item['values']
-            mensaje = (f"No de Serie: {datos[0]}\n"
-                       f"Piloto: {datos[1]}\n"
-                       f"En Servicio: {datos[2]}\n"
-                       f"Modelo: {datos[3]}\n"
-                       f"Horas de Vuelo: {datos[4]}")
-            messagebox.showinfo("Registro Seleccionado", mensaje)
+
+            # Crear ventana de selecionado
+            ventana_detalle = tk.Toplevel(self.__root)
+            ventana_detalle.title("Detalle del Registro")
+            ventana_detalle.geometry("1000x100")
+            ventana_detalle.resizable(False, False)
+
+            tabla_detalle = ttk.Treeview(ventana_detalle, columns=("No de Serie", "Piloto", "En Servicio", "Modelo", "Horas de Vuelo"), show='headings')
+            for col in tabla_detalle["columns"]:
+                tabla_detalle.heading(col, text=col)
+                tabla_detalle.column(col, anchor="center")
+
+            tabla_detalle.insert("", tk.END, values=datos)
+            tabla_detalle.pack(pady=10, fill=tk.BOTH, expand=True)
+
         else:
             messagebox.showwarning("Advertencia", "Por favor selecciona un registro.")

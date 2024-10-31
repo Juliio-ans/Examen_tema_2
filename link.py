@@ -1,3 +1,4 @@
+#aparatado de conexion con la api
 import requests
 from tkinter import messagebox
 
@@ -7,8 +8,8 @@ class link:
 
     def obtener_datos(self):
         try:
-            response = requests.get(self.__url)
-            response.raise_for_status()
+            response = requests.get(self.__url)#realiza la solicitud a la pi
+            response.raise_for_status()#inspeciona que no aiga errores
             return response.json()
         except requests.RequestException as e:
             messagebox.showerror("Error", f"Error al obtener datos: {e}")
